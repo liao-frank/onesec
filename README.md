@@ -5,7 +5,7 @@ _Onesec_ is a tool for no-knowledge position animations in React. After attachin
 Want to customize the animation? Just change the `transition` CSS with your own duration or timing.
 
 
-_Onesec_ was inspired by [list transitions in Vue](https://vuejs.org/v2/guide/transitions.html#List-Entering-Leaving-Transitions). UI often reflows in unpredictable ways, making it difficult to use vanilla CSS transitions. By tracking positions with JS, we can animate without knowledge of keyframes!
+_Onesec_ was inspired by ['List Move Transitions' in Vue](https://vuejs.org/v2/guide/transitions.html#List-Move-Transitions). UI often reflows in unpredictable ways, making it difficult to use vanilla CSS transitions. By tracking positions with JS, we can animate without knowledge of keyframes!
 
 ##### Usage
 The tool currently only works for class-based components.
