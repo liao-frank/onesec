@@ -8,7 +8,7 @@ Want to customize the animation? Just change the `transition` CSS with your own 
 _Onesec_ was inspired by ['List Move Transitions' in Vue](https://vuejs.org/v2/guide/transitions.html#List-Move-Transitions). UI often reflows in unpredictable ways, making it difficult to use vanilla CSS transitions. By tracking positions with JS, we can animate without knowledge of keyframes!
 
 ##### Usage
-The tool currently only works for class-based components.
+The tool currently only works for class-based components. Consider using `PureComponent` when possible.
 
 ```js
 import React from 'react'
