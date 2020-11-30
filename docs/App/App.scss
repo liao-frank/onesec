@@ -1,0 +1,14 @@
+.demo {
+  border: solid 1px blue;
+  padding: 12px;
+  width: 360px;
+}
+
+.subject {
+  border: solid 1px red;
+}
+
+.subject, .subject-placeholder {
+  width: 64px;
+  height: 64px;
+}
