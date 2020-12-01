@@ -67,6 +67,7 @@ typings/
 .lighthouseci
 
 # build artifacts
+build
 dist
 
 # deploy scripts

@@ -1,6 +1,80 @@
 import units from 'units-css'
 
-const callAfterRepaint = (func) => requestAnimationFrame(() => setTimeout(func))
+export const introduce = (el: HTMLElement) => {
+  el.classList.add(Css.WillEnter, Css.Entering)
+  const duration = getPhaseDuration(el)
+  if (!duration) {
+    el.classList.remove(Css.WillEnter, Css.Entering)
+    return
+  }
+  // Start transition.
+  callAfterRepaint(
+    el.classList.remove, el.classList, Css.WillEnter, Css.Entering)
+  // Setup cleanup.
+  setTimeout(() => el.remove(), duration + AVG_FRAME_MS)
+}
+
+export const rewind = (el: HTMLElement, prevSnapshot: Snapshot) => {
+  const {globalX: currX, globalY: currY} = getSnapshot(el)
+  const {
+    style: prevStyle,
+    globalX: prevX,
+    globalY: prevY,
+    width: prevWidth,
+    height: prevHeight,
+  } = prevSnapshot
+
+  el.style.transition = 'none'
+  // Rewind dimensions.
+  el.style.maxWidth = el.style.minWidth = prevWidth + 'px'
+  el.style.maxHeight = el.style.minHeight = prevHeight + 'px'
+  // Rewind positions.
+  el.style.transform =
+    (prevStyle.transform && prevStyle.transform + ', ') +
+    `translate(${prevX - currX}, ${prevY - currY})`
+}
+
+export const replay = (el: HTMLElement) => {
+  el.classList.add(Css.Updating)
+  const duration = getPhaseDuration(el)
+  if (!duration) {
+    el.classList.remove(Css.Updating)
+    return
+  }
+  el.style.transition = ''
+  // Play dimensions.
+  el.style.maxWidth = el.style.minWidth = ''
+  el.style.maxHeight = el.style.minHeight = ''
+  // Play positions.
+  el.style.transform = ''
+  // Setup cleanup.
+  setTimeout(() => el.classList.remove(Css.Updating), duration)
+}
+
+export const echo = (el: HTMLElement) => {
+  el.classList.add(Css.Exiting)
+  const duration = getPhaseDuration(el)
+  if (!duration) {
+    el.classList.remove(Css.Exiting)
+    return
+  }
+  // Create echo.
+  const snapshot = getSnapshot(el)
+  const echoEl = el.cloneNode(true) as HTMLElement
+  // Enforce snapshot.
+  echoEl.style.position = 'absolute'
+  echoEl.style.top = snapshot.localY + 'px'
+  echoEl.style.left = snapshot.localX + 'px'
+  echoEl.style.maxWidth = echoEl.style.minWidth = snapshot.width + 'px'
+  echoEl.style.maxHeight = echoEl.style.minHeight = snapshot.height + 'px'
+  // Setup transition.
+  echoEl.classList.add(Css.Exiting)
+  el.before(echoEl)
+  // Start transition.
+  callAfterRepaint(echoEl.classList.add, echoEl.classList, Css.DidExit)
+  // Setup cleanup.
+  setTimeout(() => echoEl.remove(), duration + AVG_FRAME_MS)
+}
 
 const getPhaseDuration = (el: HTMLElement): number => {
   const styles = window.getComputedStyle(el)
@@ -17,6 +91,12 @@ const getPhaseDuration = (el: HTMLElement): number => {
   return parseFloat(delay) * (delay.endsWith('ms') ? 1 : 1000) +
     parseFloat(duration) * (duration.endsWith('ms') ? 1 : 1000)
 }
+
+export const callAfterRepaint = (func, scope?, ...args) => (
+  requestAnimationFrame(() => (
+    setTimeout(() => func.call(scope, ...args))
+  ))
+)
 
 export const getSnapshot = (el: HTMLElement): Snapshot => {
   const computedStyle = window.getComputedStyle(el)
@@ -41,59 +121,7 @@ export const getSnapshot = (el: HTMLElement): Snapshot => {
   }
 }
 
-export const echo = (el: HTMLElement) => {
-  el.classList.add(Css.Exiting)
-  const duration = getPhaseDuration(el)
-  if (!duration) return
-  // Create echo.
-  const snapshot = getSnapshot(el)
-  const echoEl = el.cloneNode(true) as HTMLElement
-  // Enforce snapshot.
-  echoEl.style.position = 'absolute'
-  echoEl.style.top = snapshot.localY + 'px'
-  echoEl.style.left = snapshot.localX + 'px'
-  echoEl.style.maxWidth = echoEl.style.minWidth = snapshot.width + 'px'
-  echoEl.style.maxHeight = echoEl.style.minHeight = snapshot.height + 'px'
-  // Setup transition.
-  echoEl.classList.add(Css.Exiting)
-  el.before(echoEl)
-  // Start transition.
-  callAfterRepaint(() => echoEl.classList.add(Css.DidExit))
-  // Setup echo cleanup. Don't do this in `requestAnimationFrame` because it
-  // should still run when the tab is not active.
-  setTimeout(() => echoEl.remove(), duration + AVG_FRAME_MS)
-}
-
-export const rewind = (el: HTMLElement, prevSnapshot: Snapshot) => {
-  const {globalX: currX, globalY: currY} = getSnapshot(el)
-  const {
-    style: prevStyle,
-    globalX: prevX,
-    globalY: prevY,
-    width: prevWidth,
-    height: prevHeight,
-  } = prevSnapshot
-
-  el.style.transition = 'none'
-  // Rewind dimensions.
-  el.style.maxWidth = el.style.minWidth = prevWidth + 'px'
-  el.style.maxHeight = el.style.minHeight = prevHeight + 'px'
-  // Rewind positions.
-  el.style.transform =
-    (prevStyle.transform && prevStyle.transform + ', ') +
-    `translate(${prevX - currX}, ${prevY - currY})`
-}
-
-export const replay = (el: HTMLElement) => {
-  el.style.transition = ''
-  // Play dimensions.
-  el.style.maxWidth = el.style.minWidth = ''
-  el.style.maxHeight = el.style.minHeight = ''
-  // Play positions.
-  el.style.transform = ''
-}
-
-type Snapshot = {
+export type Snapshot = {
   style: CSSStyleDeclaration, // Computed styles.
   globalX: number, // Distance from left side of document body.
   globalY: number, // Distance from top of document body.

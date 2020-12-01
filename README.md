@@ -1,4 +1,4 @@
-<p align="center"><img src="./onesec.png" width="64px"></p>
+<p align="center"><img src="./static/onesec.png" width="64px"></p>
 
 _Onesec_ is a tool for zero-knowledge position animations in React. After attaching _Onesec_ with the provided HOC, the tool will listen for re-renders and then automatically animate your component from its old position to its new position.
 
