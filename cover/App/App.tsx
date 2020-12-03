@@ -1,5 +1,4 @@
 import React, {Component, createContext} from 'react'
-import EchoDemo from '../EchoDemo'
 
 import './App.scss'
 
@@ -22,7 +21,6 @@ export default class App extends Component<{}, State> {
   render() {
     return (
       <AppContext.Provider value={this.state}>
-        <EchoDemo />
       </AppContext.Provider>
     )
   }

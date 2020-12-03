@@ -1,0 +1,15 @@
+.subject {
+  &.exiting {
+    transform-origin: center;
+    transition:
+      transform 1.4s ease-out,
+      visibility 1.4s linear,
+      opacity 1.4s ease-out;
+  }
+
+  &.did-exit {
+    transform: translate(100%, 100%) rotate(720deg) scale(0);
+    visibility: hidden;
+    opacity: 0.2;
+  }
+}

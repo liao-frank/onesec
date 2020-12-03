@@ -1,9 +1,9 @@
-import React, {Component as ReactComponent, ComponentClass, RefObject} from 'react'
+import React, {Component as ReactComponent, ComponentClass, ReactInstance, RefObject} from 'react'
 import {findDOMNode} from 'react-dom'
 import {callAfterRepaint, echo, getSnapshot, introduce, replay, rewind, Snapshot} from './Onesec'
 
 const withOnesec = (
-  Component: ComponentClass<{onesecRef: RefObject<HTMLElement | ReactComponent>}>
+  Component: ComponentClass<{onesecRef: RefObject<HTMLElement | ReactInstance>}>
 ) => {
   const OnesecComponent = class extends ReactComponent<any> {
     private onesecRef: RefObject<HTMLElement | ReactComponent>
@@ -43,11 +43,21 @@ const withOnesec = (
 
     private getEl(): HTMLElement {
       const {current} = this.onesecRef
-      if (!current) return
-      if (current instanceof HTMLElement) return current
+      if (!current) {
+        console.error('Ref could not be found for', this)
+        return
+      }
+      if (current instanceof HTMLElement) {
+        return current
+      }
       // TODO: Re-consider if this case should be supported (when the user
       // attaches the ref to a `Component`).
-      return findDOMNode(current) as HTMLElement
+      const el = findDOMNode(current) as HTMLElement
+      if (!el) {
+        console.error('Element could not be found for', this)
+        return
+      }
+      return el
     }
   }
 

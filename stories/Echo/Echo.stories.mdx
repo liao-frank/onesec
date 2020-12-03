@@ -1,0 +1,107 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import {EchoManager, EchoStatic, EchoWithComponentWillUnmount, EchoWithHook} from './Echo'
+
+<Meta title="Mechanics/Echo" />
+
+# Echo
+
+The echo mechanic enables 'exit' transitions. The lifecycle is as follows:
+
+1. Before the element unmounts, a snapshot is captured which contains information like size and position.
+2. A copy of the element is created. The clone is absolutely positioned and has the snapshot properties enforced on it.
+3. The original element unmounts.
+4. The clone transitions and gets removed after transitions are complete.
+
+This lifecycle relies on the user-provided styles to determine when to remove the cloned element:
+
+```css
+.your-component.exiting {
+  /* The duration for `visibility` transition determines when the echo is removed from the DOM. */
+  transition: ...;
+}
+.your-component.did-exit {
+  /* Required. */
+  visibility: hidden;
+
+  /* Add your own properties that define the final state of the echo. */
+  ...
+}
+```
+
+The benefit of this approach is that the echo is not part of the original UI flow i.e. the original lifecycle isn't blocked and the unmount still occurs. Any visible exiting elements are shadows of their original selves.
+
+## Examples
+The examples below demonstrate how to use the `echo()` function exported by Onesec, similar to how it is used internally by the `useOnesec` hook and `withOnesec` HOC.
+
+The example transition styles are:
+```css
+.subject.exiting {
+  transform-origin: center;
+  transition:
+    transform 1s ease-out,
+    visibility 1s linear,
+    opacity 1s ease-out;
+}
+.subject.did-exit {
+  transform: translate(100%, 100%) rotate(720deg) scale(0);
+  visibility: hidden;
+  opacity: 0.2;
+}
+```
+### Echoing a static element
+<EchoStatic />
+
+This is a simple demonstration of intermittedly running `echo()` on a static element.
+```tsx
+setInterval(() => echo(el), ECHO_INTERVAL)
+```
+
+### Echoing on unmount (w/ hook)
+<EchoManager>
+  <EchoWithHook />
+</EchoManager>
+
+This is a managed functional component using a hook to run `echo()` on unmount. The parent renders and unrenders this component on an interval.
+
+```tsx
+const EchoWithHook = () => {
+  const subjectRef = useRef(null)
+
+  // Echo when the component is about to unmount.
+  useLayoutEffect(() => () => {
+    echo(subjectRef.current)
+  }, [])
+
+  return (
+    <div className="subject" ref={subjectRef} />
+  )
+}
+```
+
+### Echoing on unmount (w/ `componentWillUnmount()`)
+<EchoManager>
+  <EchoWithComponentWillUnmount />
+</EchoManager>
+
+This is a managed class component using `componentWillUnmount()` to run `echo()` on unmount. The parent renders and unrenders this component on an interval.
+
+```tsx
+class EchoWithComponentWillUnmount extends Component {
+  private readonly subjectRef: RefObject<HTMLDivElement>
+
+  constructor(props) {
+    super(props)
+    this.subjectRef = createRef()
+  }
+
+  render() {
+    return (
+      <div className="subject" ref={this.subjectRef} />
+    )
+  }
+
+  componentWillUnmount() {
+    echo(this.subjectRef.current)
+  }
+}
+```

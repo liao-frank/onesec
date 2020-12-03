@@ -1,31 +1,48 @@
 {
+  "homepage": "https://liao-frank.github.io/Onesec",
   "name": "onesec",
   "version": "1.0.0",
   "author": "liao-frank <liaofranku@gmail.com>",
   "license": "MIT",
-  "files": ["dist"],
-  "source": "src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "source": "lib/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "unpkg": "dist/index.umd.js",
   "repository": "https://github.com/liao-frank/onesec.git",
   "scripts": {
     "build": "microbundle",
-    "build-docs": "parcel build docs/index.html --out-dir build/output",
-    "dev-docs": "parcel docs/index.html --out-dir build"
+    "cover": "parcel docs/index.html --out-dir build",
+    "build-cover": "parcel build cover/index.html --out-dir build/output/cover",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook -o build/output/storybook",
+    "predeploy": "yarn run build-cover & yarn run build-storybook",
+    "deploy": "gh-pages -d build/output"
   },
   "dependencies": {
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "src": "^1.1.2",
     "units-css": "^0.4.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@storybook/addon-actions": "^6.1.9",
+    "@storybook/addon-essentials": "^6.1.9",
+    "@storybook/addon-links": "^6.1.9",
+    "@storybook/preset-scss": "^1.0.3",
+    "@storybook/react": "^6.1.9",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.0.1",
+    "gh-pages": "^3.1.0",
     "microbundle": "^0.12.4",
     "parcel-bundler": "^1.12.4",
     "sass": "^1.29.0",
+    "sass-loader": "^10.1.0",
+    "style-loader": "^2.0.0",
     "typescript": "^4.1.2"
   }
 }
